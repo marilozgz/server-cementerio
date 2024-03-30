@@ -1,0 +1,16 @@
+version: 0.1
+
+services:
+  web:
+    build:
+      image: node:18
+      commands:
+        - npm install
+        - npx playwright install
+        - npm start
+    port: 3000
+    path: ./
+    ready_check:
+      url: http://localhost:3000
+
+
