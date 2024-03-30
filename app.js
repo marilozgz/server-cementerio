@@ -26,19 +26,15 @@ app.get('/server', async (req, res) => {
     await page.goto('https://www.zaragoza.es/ciudad/cementerios/');
     await page.waitForSelector('//*[@id="menu"]/ul/li[1]/div/a');
     await page.click('//*[@id="menu"]/ul/li[1]/div/a');
-    await page.screenshot({ path: 'primera.png' });
     await page.waitForSelector('//*[@id="menu"]/ul/li[1]/ul/li[5]/a');
     await page.click('//*[@id="menu"]/ul/li[1]/ul/li[5]/a');
-    await page.screenshot({ path: 'web.png' });
     await page.waitForSelector('#snombre');
     await page.fill('#snombre', name);
     await page.fill('#sape1', ape1);
     await page.fill('#sape2', ape2);
 
-    await page.screenshot({ path: 'relleno.png' });
     await page.waitForSelector('//*[@id="formularioMapaTotem:buscar"]');
     await page.click('//*[@id="formularioMapaTotem:buscar"]');
-    await page.screenshot({ path: 'lista.png' });
 
     const tabla = await page.waitForSelector('//*[@id="formularioMapaTotem:resultsTable"]');
     const rows = await tabla.$$('tr');
