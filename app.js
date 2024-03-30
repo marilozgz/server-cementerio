@@ -9,9 +9,9 @@ const PORT = 3000;
 
 
 app.get('/server', async (req, res) => {
-  const name = req.body.name ? req.body.name : null;
-  const ape1 = req.body.ape1 ? req.body.ape1 : null;
-  const ape2 = req.body.ape2 ? req.body.ape2 : null;
+  const name = req.body.name ? req.body.name : 'orencio';
+  const ape1 = req.body.ape1 ? req.body.ape1 : 'pascua';
+  const ape2 = req.body.ape2 ? req.body.ape2 : 'villar';
   console.log(name, ape1, ape2)
   try {
     const browser = await chromium.launch();
