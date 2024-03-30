@@ -1,11 +1,17 @@
 const express = require('express');
 const { chromium } = require('playwright');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const https = require('https');
 
 const app = express();
 const PORT = 3000;
 
+app.use(bodyParser.urlencoded({ extended: true }));
 
+const privateKey = fs.readFileSync('./tutorial.key', 'utf8');
+const certificate = fs.readFileSync('./tutorial.crt', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
 
 app.get('/server', async (req, res) => {
   const name = req.query.name ? req.query.name : 'orencio';
@@ -15,8 +21,7 @@ app.get('/server', async (req, res) => {
   try {
     const browser = await chromium.launch();
     const context = await browser.newContext();
-    const page = await browser.newPage();
-
+    const page = await context.newPage();
 
     await page.goto('https://www.zaragoza.es/ciudad/cementerios/');
     await page.waitForSelector('//*[@id="menu"]/ul/li[1]/div/a');
@@ -60,7 +65,6 @@ app.get('/server', async (req, res) => {
       }
     }
 
-
     res.json(data);
     await browser.close();
   } catch (error) {
@@ -69,6 +73,8 @@ app.get('/server', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+const httpsServer = https.createServer(credentials, app);
+
+httpsServer.listen(PORT, () => {
+  console.log(`Server is running on https://localhost:${PORT}`);
 });
