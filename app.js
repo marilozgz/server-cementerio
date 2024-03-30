@@ -5,13 +5,12 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 3000;
 
-// wait for variabl name, ape1, ape2 passed with post request
 
 
 app.get('/server', async (req, res) => {
-  const name = req.body.name ? req.body.name : 'orencio';
-  const ape1 = req.body.ape1 ? req.body.ape1 : 'pascua';
-  const ape2 = req.body.ape2 ? req.body.ape2 : 'villar';
+  const name = req.query.name ? req.query.name : 'orencio';
+  const ape1 = req.query.ape1 ? req.query.ape1 : 'pascua';
+  const ape2 = req.query.ape2 ? req.query.ape2 : 'villar';
   console.log(name, ape1, ape2)
   try {
     const browser = await chromium.launch();
