@@ -2,22 +2,23 @@ const express = require('express');
 const { chromium } = require('playwright');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const https = require('https');
+const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
+app.use(cors({
+  origin: '*',
+  credentials: false
+}));
+app.use(bodyParser.json());
 
-app.use(bodyParser.urlencoded({ extended: true }));
 
-const privateKey = fs.readFileSync('./tutorial.key', 'utf8');
-const certificate = fs.readFileSync('./tutorial.crt', 'utf8');
-const credentials = { key: privateKey, cert: certificate };
+app.post('/server', async (req, res) => {
 
-app.get('/server', async (req, res) => {
-  const name = req.query.name ? req.query.name : 'orencio';
-  const ape1 = req.query.ape1 ? req.query.ape1 : 'pascua';
-  const ape2 = req.query.ape2 ? req.query.ape2 : 'villar';
-  console.log(name, ape1, ape2)
+  const name = req.body.data.name ? req.body.data.name : '';
+  const ape1 = req.body.data.ape1 ? req.body.data.ape1 : '';
+  const ape2 = req.body.data.ape2 ? req.body.data.ape2 : '';
+  console.log(req.body.data);
   try {
     const browser = await chromium.launch();
     const context = await browser.newContext();
@@ -32,9 +33,10 @@ app.get('/server', async (req, res) => {
     await page.fill('#snombre', name);
     await page.fill('#sape1', ape1);
     await page.fill('#sape2', ape2);
-
+  await page.screenshot({ path: 'example.png' });
     await page.waitForSelector('//*[@id="formularioMapaTotem:buscar"]');
     await page.click('//*[@id="formularioMapaTotem:buscar"]');
+    await page.screenshot({ path: 'example2.png' });
 
     const tabla = await page.waitForSelector('//*[@id="formularioMapaTotem:resultsTable"]');
     const rows = await tabla.$$('tr');
@@ -55,7 +57,7 @@ app.get('/server', async (req, res) => {
         rowData.fecha_nacimiento = columns[7] ? await columns[7].innerText() : null;
         rowData.fecha_defuncion = columns[8] ? await columns[8].innerText() : null;
         rowData.tipo_restos = columns[9] ? await columns[9].innerText() : null;
-        rowData.elegir = columns[10] ? await columns[10].innerText() : null;
+        rowData.elegir = columns[10] ? (await columns[10].innerHTML()).match(/selContenedor\('(\d+)'\)/)[1] : null;
 
         data.push(rowData);
       }
@@ -69,8 +71,7 @@ app.get('/server', async (req, res) => {
   }
 });
 
-const httpsServer = https.createServer(credentials, app);
 
-httpsServer.listen(PORT, () => {
-  console.log(`Server is running on https://localhost:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
