@@ -3,15 +3,23 @@ const { chromium } = require('playwright');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const cors = require('cors');
+const https = require('https');
 
 const app = express();
 const PORT = 4000;
+const SSL_KEY_PATH = './tutorial.key';
+const SSL_CERT_PATH = './tutorial.crt'
+
 app.use(cors({
   origin: '*',
   credentials: false
 }));
 app.use(bodyParser.json());
 
+const serverOptions = {
+  key: fs.readFileSync(SSL_KEY_PATH),
+  cert: fs.readFileSync(SSL_CERT_PATH)
+};
 
 app.post('/server', async (req, res) => {
 
@@ -33,7 +41,7 @@ app.post('/server', async (req, res) => {
     await page.fill('#snombre', name);
     await page.fill('#sape1', ape1);
     await page.fill('#sape2', ape2);
-  await page.screenshot({ path: 'example.png' });
+    await page.screenshot({ path: 'example.png' });
     await page.waitForSelector('//*[@id="formularioMapaTotem:buscar"]');
     await page.click('//*[@id="formularioMapaTotem:buscar"]');
     await page.screenshot({ path: 'example2.png' });
@@ -71,7 +79,6 @@ app.post('/server', async (req, res) => {
   }
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+https.createServer(serverOptions, app).listen(PORT, () => {
+  console.log(`Server is running on https://localhost:${PORT}`);
 });
